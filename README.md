@@ -53,3 +53,4 @@ One-step screen adaptation.
 <img src="screenshots/2.png" width="800" hight="480">
 
 转载请注明出处，我是toperc.
+
