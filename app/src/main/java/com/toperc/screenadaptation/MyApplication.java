@@ -13,36 +13,29 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        resetDensity(Configuration.ORIENTATION_PORTRAIT);
+        resetDensity();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        resetDensity(newConfig.orientation);
+        resetDensity();
     }
 
     /**
      * 重置屏幕密度
-     *
-     * @param orientation
      */
-    private void resetDensity(int orientation) {
+    private void resetDensity() {
         //绘制页面时参照的设计图尺寸
         final float DESIGN_WIDTH = 1080f;
         final float DESIGN_HEIGHT = 1920f;
         final float DESTGN_INCH = 5.0f;
-        //大屏调节因子，范围0~1，因同比例放大造成大屏幕视图显示非常傻大憨，用于调节感官度。
+        //大屏调节因子，范围0~1，因屏幕同比例放大视图显示非常傻大憨，用于调节感官度
         final float BIG_SCREEN_FACTOR = 0.2f;
 
         DisplayMetrics dm = getResources().getDisplayMetrics();
         //确定放大缩小比率
-        float rate = 1f;
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            rate = dm.widthPixels / DESIGN_WIDTH;
-        } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            rate = dm.widthPixels / DESIGN_HEIGHT;
-        }
+        float rate = Math.min(dm.widthPixels, dm.heightPixels) / Math.min(DESIGN_WIDTH, DESIGN_HEIGHT);
         //确定参照屏幕密度
         float referenceDensity = (float) Math.sqrt(DESIGN_WIDTH * DESIGN_WIDTH + DESIGN_HEIGHT * DESIGN_HEIGHT) / DESTGN_INCH / 160;
         //确定最终屏幕密度
@@ -52,6 +45,5 @@ public class MyApplication extends Application {
         }
         dm.density = relativeDensity;
     }
-
 
 }
