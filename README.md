@@ -3,7 +3,7 @@ One-step screen adaptation.
 
 大家都知道Android屏幕适配是件非常头疼的事，目前全世界安卓设备的大大小小分辨率，大大小小的尺寸，最终形成的设备屏幕大小种类不计其数，但就这一项就给开发者造成了不少困难，总是照顾住这种屏幕照顾不了那种屏幕。
 
-先来放一种很熟悉的图：  
+先来放一种很熟悉的图：
 <img src="screenshots/0.png" width="480" hight="300">
 
 针对Android屏幕适配，除了我们按照“灵活运用布局”、“尺寸限定符”、“布局相关属性”、“.9图”、“屏幕密度适配”等官方标准，但是却发现还远远不够，要么添加很多图片(从加载性能说似乎是必要的)使得apk变得很大，要么有多套布局工作量变大难以维护。针对屏幕适配，google官方也是系统默认支持的是采用屏幕像素密度来进行匹配相关资源和长度的，这一块不做过多的阐述了，建议参看官方文档。
@@ -33,6 +33,17 @@ One-step screen adaptation.
 3. 确定相对屏幕密度并重新赋值给系统的像素密度
 
 ```
+    /**
+     * 重置屏幕密度
+     */
+    private void resetDensity() {
+        //绘制页面时参照的设计图尺寸
+        final float DESIGN_WIDTH = 1080f;
+        final float DESIGN_HEIGHT = 1920f;
+        final float DESTGN_INCH = 5.0f;
+        //大屏调节因子，范围0~1，因屏幕同比例放大视图显示非常傻大憨，用于调节感官度
+        final float BIG_SCREEN_FACTOR = 0.2f;
+
         DisplayMetrics dm = getResources().getDisplayMetrics();
         //确定放大缩小比率
         float rate = Math.min(dm.widthPixels, dm.heightPixels) / Math.min(DESIGN_WIDTH, DESIGN_HEIGHT);
@@ -40,12 +51,15 @@ One-step screen adaptation.
         float referenceDensity = (float) Math.sqrt(DESIGN_WIDTH * DESIGN_WIDTH + DESIGN_HEIGHT * DESIGN_HEIGHT) / DESTGN_INCH / 160;
         //确定最终屏幕密度
         float relativeDensity = referenceDensity * rate;
+        if (relativeDensity > dm.density) {
+            relativeDensity = relativeDensity - (relativeDensity - dm.density) * BIG_SCREEN_FACTOR;
+        }
         dm.density = relativeDensity;
+    }
 ```
 注意放大缩小比例屏幕的长宽和参考屏幕的长宽对应设定的，这样计算出来的屏幕密度是固定的。这些所做的工作都在application的初始的生命周期中，一旦app启动优先处理这件事，其他均按照默认处理，就是这么简单。
 
-使用和不使用截图直观感受：
-
+**使用和不使用截图直观感受**
 采用默认布局方式截图对比：
 <img src="screenshots/1.png" width="800" hight="480">
 
