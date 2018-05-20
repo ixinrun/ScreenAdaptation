@@ -5,7 +5,7 @@ import android.content.res.Configuration;
 import android.util.DisplayMetrics;
 
 /**
- * Created by 31718 on 2018/5/20.
+ * Created by toperc on 2018/5/20.
  */
 
 public class MyApplication extends Application {
