@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ScreenAdaptation.iml" filepath="$PROJECT_DIR$/ScreenAdaptation.iml" />
+      <module fileurl="file://F:\Workspaces\AndroidStudioProjects\projects_github\github_project\ScreenAdaptation\ScreenAdaptation.iml" filepath="F:\Workspaces\AndroidStudioProjects\projects_github\github_project\ScreenAdaptation\ScreenAdaptation.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://F:\Workspaces\AndroidStudioProjects\projects_github\github_project\ScreenAdaptation\app\app.iml" filepath="F:\Workspaces\AndroidStudioProjects\projects_github\github_project\ScreenAdaptation\app\app.iml" />
     </modules>
   </component>
 </project>
