@@ -8,7 +8,7 @@ import android.util.DisplayMetrics;
  * @date 2018/6/13
  * @description
  */
-public class ScreenAdaptationUtil {
+public class ScreenUtil {
 
     private static float ORIGINAL_DENSITY = -1;  //原始屏幕密度比率
 

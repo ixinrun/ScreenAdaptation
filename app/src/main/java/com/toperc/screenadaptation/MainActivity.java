@@ -9,13 +9,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(newBase);
-        ScreenAdaptationUtil.resetDensity(this);
+        ScreenUtil.resetDensity(this);
     }
 
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
-        ScreenAdaptationUtil.resetDensity(this.getApplicationContext());
+        ScreenUtil.resetDensity(this.getApplicationContext());
     }
 
     @Override
