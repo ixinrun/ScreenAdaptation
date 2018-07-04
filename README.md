@@ -37,28 +37,88 @@ One-step screen adaptation.
     /**
      * 重置屏幕密度
      */
-    private void resetDensity() {
+    public static void resetDensity(Context context) {
         //绘制页面时参照的设计图尺寸
-        final float DESIGN_WIDTH = 1080f;
-        final float DESIGN_HEIGHT = 1920f;
+        final float DESIGN_WIDTH = 800f;
+        final float DESIGN_HEIGHT = 1280f;
         final float DESTGN_INCH = 5.0f;
         //大屏调节因子，范围0~1，因屏幕同比例放大视图显示非常傻大憨，用于调节感官度
-        final float BIG_SCREEN_FACTOR = 0.2f;
+        final float BIG_SCREEN_FACTOR = 0.8f;
 
-        DisplayMetrics dm = getResources().getDisplayMetrics();
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+
         //确定放大缩小比率
         float rate = Math.min(dm.widthPixels, dm.heightPixels) / Math.min(DESIGN_WIDTH, DESIGN_HEIGHT);
-        //确定参照屏幕密度
-        float referenceDensity = (float) Math.sqrt(DESIGN_WIDTH * DESIGN_WIDTH + DESIGN_HEIGHT * DESIGN_HEIGHT) / DESTGN_INCH / 160;
-        //确定最终屏幕密度
+        //确定参照屏幕密度比率
+        float referenceDensity = (float) Math.sqrt(DESIGN_WIDTH * DESIGN_WIDTH + DESIGN_HEIGHT * DESIGN_HEIGHT) / DESTGN_INCH / DisplayMetrics.DENSITY_DEFAULT;
+        //确定最终屏幕密度比率
         float relativeDensity = referenceDensity * rate;
-        if (relativeDensity > dm.density) {
-            relativeDensity = relativeDensity - (relativeDensity - dm.density) * BIG_SCREEN_FACTOR;
+
+        if (ORIGINAL_DENSITY == -1) {
+            ORIGINAL_DENSITY = dm.density;
+        }
+        if (relativeDensity > ORIGINAL_DENSITY) {
+            relativeDensity = ORIGINAL_DENSITY + (relativeDensity - ORIGINAL_DENSITY) * BIG_SCREEN_FACTOR;
         }
         dm.density = relativeDensity;
+        dm.densityDpi = (int) (relativeDensity * DisplayMetrics.DENSITY_DEFAULT);
+        dm.scaledDensity = relativeDensity;
     }
 ```
-注意放大缩小比例屏幕的长宽和参考屏幕的长宽对应设定的，这样计算出来的屏幕密度是固定的。这些所做的工作都在application的初始的生命周期中，一旦app启动优先处理这件事，其他均按照默认处理，就是这么简单。
+上边放大缩小比例是根据屏幕的长宽和参考屏幕的长宽对应设定的，这样计算出来的屏幕密度是固定的。  
+注意最终赋值的三个成员变量的含义：
+- dm.density  
+屏幕密度比率，不同设备的屏幕视图的长宽大小都是根据屏幕密度比率与屏幕密度基准值（160dp）的乘积。此成员变量控制拥有固定长宽值视图的缩放。
+- dm.densityDpi  
+实际屏幕密度比率，但是单独设定此值并不一定起到缩放效果，需要配合density一起设定，此成员变量控制长宽自动wrapConent形式的缩放，因为wrapContent形式下系统自动为其分配默认的屏幕密度，如果不对其重新赋值，则不能根据规则进行缩放。
+- dm.scaledDensity  
+独立像素密度，主要处理字体大小缩放，目前比较流行的字体单位为dp，第一能随着应用适应不同的设备缩放，第二避免了跟随系统缩放使得布局展示错乱。但是某些系统机开发者不能控制的例如toast字体大小等默认使用的单位仍然是sp,所以此成员变量也需要进行重新赋值。系统默认应用sp和dp二者的比率为1，但是某些情况下又想根据系统缩放，还要保持整体缩放比率，这是就要系统缩放和应用缩放结合着得出一个比率来最终赋值了。
+
+配置地方：  
+DisplayMetrics相关参数的值有两种，一种是默认的，一种是动态调整后的。
+获取默认的：
+```java
+        DisplayMetrics display = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(display);
+```
+获取动态调整后的：
+```java
+DisplayMetrics dm = context.getResources().getDisplayMetrics();
+```
+
+应用展示最终使用的DisplayMetrics相关参数就是调整后的。android8.0之前，整个应用长宽缩放比率均是采用一套，所以只需要在Application配置一次即可，但是在Android8.0的时候，系统架构调整，由原来的统一现在分配到每个Activity和全局Application中，Activity中设置的时候要注意一定要设置setContentView()之前，Application的设置即设置在onCreat()即可。为了使这个应用产生效果，建议将其配置在BaseActivity中。
+
+Activity中：
+```java
+ /**
+     * 使得在“setContentView()"之前生效，所以配置在此方法中。
+     * @param newBase
+     */
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+        ScreenUtil.resetDensity(this);
+    }
+
+    /**
+     * 在某种情况下需要Activity的视图初始完毕Application中DisplayMetrics相关参数才能起效果，例如toast.
+     * @param 
+     */
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        ScreenUtil.resetDensity(this.getApplicationContext());
+    }
+```
+Application中：
+```java
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ScreenUtil.resetDensity(this);
+    }
+```
+这些配置完毕后，一旦app启动优先处理这件事，其他均按照默认处理，就是这么简单。
 
 **使用和不使用截图直观感受**
 采用默认布局方式截图对比：  

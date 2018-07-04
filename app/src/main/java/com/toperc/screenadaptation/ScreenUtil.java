@@ -39,8 +39,8 @@ public class ScreenUtil {
             relativeDensity = ORIGINAL_DENSITY + (relativeDensity - ORIGINAL_DENSITY) * BIG_SCREEN_FACTOR;
         }
         dm.density = relativeDensity;
-        dm.scaledDensity = relativeDensity;
         dm.densityDpi = (int) (relativeDensity * DisplayMetrics.DENSITY_DEFAULT);
+        dm.scaledDensity = relativeDensity;
     }
 
 
