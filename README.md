@@ -83,14 +83,14 @@ DisplayMetrics相关参数的值有两种，一种是默认的，一种是动态
 ```
 获取动态调整后的：
 ```java
-DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
 ```
 
 应用展示最终使用的DisplayMetrics相关参数就是调整后的。android8.0之前，整个应用长宽缩放比率均是采用一套，所以只需要在Application配置一次即可，但是在Android8.0的时候，系统架构调整，由原来的统一现在分配到每个Activity和全局Application中，Activity中设置的时候要注意一定要设置setContentView()之前，Application的设置即设置在onCreat()即可。为了使这个应用产生效果，建议将其配置在BaseActivity中。
 
 Activity中：
 ```java
- /**
+    /**
      * 使得在“setContentView()"之前生效，所以配置在此方法中。
      * @param newBase
      */
