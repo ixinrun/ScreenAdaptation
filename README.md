@@ -86,28 +86,37 @@ DisplayMetrics相关参数的值有两种，一种是默认的，一种是动态
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
 ```
 
-应用展示最终使用的DisplayMetrics相关参数就是调整后的。android8.0之前，整个应用长宽缩放比率均是采用一套，所以只需要在Application配置一次即可，但是在Android8.0的时候，系统架构调整，由原来的统一现在分配到每个Activity和全局Application中，Activity中设置的时候要注意一定要设置setContentView()之前，Application的设置即设置在onCreat()即可。为了使这个应用产生效果，建议将Activity形式的配置在BaseActivity中。
-
+应用展示最终使用的DisplayMetrics相关参数就是调整后的。android8.0之前，整个应用长宽缩放比率均是采用一套，无论时Activity和Application两者任意其一配置均可，但是在Android8.0的时候，系统架构调整，由原来的统一现在重点分配到每个Activity中和Application中，为了兼顾全局，两者都要设置，尤其是Activity。Activity中设置的时候要注意一定要设置setContentView()之前，Application的设置即设置在onCreat()即可。还应注意一点，当屏幕旋转时有时我们为了保存相关状态，所以不想让Activity的onCreat()方法重走一遍，但是屏幕旋转会使得屏幕密度参数进行重置，不得已我们还要在屏幕旋转的时候在重新设置一下屏幕密度。  
+源码中屏幕旋转所作的工作：
+```java
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        getDelegate().onConfigurationChanged(newConfig);
+        if (mResources != null) {
+            // The real (and thus managed) resources object was already updated
+            // by ResourcesManager, so pull the current metrics from there.
+            final DisplayMetrics newMetrics = super.getResources().getDisplayMetrics();
+            mResources.updateConfiguration(newConfig, newMetrics);
+        }
+    }
+```
+为了使这个应用产生效果，建议将Activity形式的配置在BaseActivity中。  
 Activity中：
 ```java
-    /**
-     * 使得在“setContentView()"之前生效，所以配置在此方法中。
-     * @param newBase
-     */
     @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(newBase);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //一定要写在setContentView之前
         ScreenUtil.resetDensity(this);
+        setContentView(R.layout.activity_main);
     }
 
-    /**
-     * 在某种情况下需要Activity的视图初始完毕Application中DisplayMetrics相关参数才能起效果，例如toast.
-     * @param 
-     */
     @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        ScreenUtil.resetDensity(this.getApplicationContext());
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        //屏幕旋转时会使一些参数初始化，所以也需要在此重置一下
+        ScreenUtil.resetDensity(this);
     }
 ```
 Application中：
