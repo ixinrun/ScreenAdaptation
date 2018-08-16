@@ -86,7 +86,8 @@ DisplayMetrics相关参数的值有两种，一种是默认的，一种是动态
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
 ```
 
-应用展示最终使用的DisplayMetrics相关参数就是调整后的。android8.0之前，整个应用长宽缩放比率均是采用一套，无论时Activity和Application两者任意其一配置均可，但是在Android8.0的时候，系统架构调整，由原来的统一现在重点分配到每个Activity中和Application中，为了兼顾全局，两者都要设置，尤其是Activity。Activity中设置的时候要注意一定要设置setContentView()之前，Application的设置即设置在onCreat()即可。还应注意一点，当屏幕旋转时有时我们为了保存相关状态，所以不想让Activity的onCreat()方法重走一遍，但是屏幕旋转会使得屏幕密度参数进行重置，不得已我们还要在屏幕旋转的时候在重新设置一下屏幕密度。  
+应用展示最终使用的DisplayMetrics相关参数就是调整后的。android8.0之前，整个应用长宽缩放比率均是采用一套，无论时Activity和Application两者任意其一配置均可，但是在Android8.0的时候，系统架构调整，由原来的统一现在重点分配到每个Activity中和Application中，为了兼顾全局，两者都要设置，尤其是Activity。Activity中设置的时候要注意一定要设置在setContentView()之前，Application设置在onCreat()即可。  
+还应注意一点，当屏幕旋转时有时我们为了保存相关状态，所以不想让Activity的onCreat()方法重走一遍，但是屏幕旋转会使得屏幕密度参数进行重置，不得已我们还要在屏幕旋转的时候在重新设置一下屏幕密度。  
 源码中屏幕旋转所作的工作：
 ```java
     @Override
